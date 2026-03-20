@@ -2,112 +2,144 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Updated Trading Dashboard</title>
+    <meta id="v-meta" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Trading Terminal</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            background-color: #0d1117; 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            color: white; 
-            padding-bottom: 50px;
+            background-color: #06090f; 
+            font-family: sans-serif; 
+            color: #c9d1d9;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* ল্যাপটপ মোডেও মাঝখানে রাখবে */
         }
 
-        /* ১. উপরের স্পন্সর (৭৮০x৭৮০) */
-        .top-sponsor { 
-            width: 780px; 
-            height: 780px; 
-            border: 1px solid #30363d; 
-            margin: 20px 0; 
+        /* কন্ট্রোল বার */
+        .nav {
+            width: 100%;
+            padding: 10px;
             background: #161b22;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 2px solid #30363d;
+            position: sticky;
+            top: 0;
+            z-index: 9999;
         }
 
-        /* ২. মাঝখানের চার্ট (১০৮০x৭২০) */
-        .middle-chart { 
-            width: 1080px; 
-            height: 720px; 
-            border: 1px solid #30363d; 
-            margin-bottom: 20px;
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        .d-btn { background: #007bff; }
+        .r-btn { background: #238636; }
+
+        /* ডিসপ্লে কন্টেইনার */
+        .box-sponsor {
+            width: 780px;
+            height: 780px;
+            max-width: 98vw; /* মোবাইলে স্ক্রিনের ভেতর ফিট করবে */
+            border: 2px solid #30363d;
+            margin: 20px 0;
+        }
+
+        .box-chart-signal {
+            width: 1080px;
+            height: 720px;
+            max-width: 98vw; /* মোবাইলে স্ক্রিনের ভেতর ফিট করবে */
+            border: 2px solid #30363d;
+            margin-bottom: 30px;
             background: #131722;
         }
 
-        /* ৩. নিচের সিগন্যাল (১০৮০x৭২০) - আপডেট করা হয়েছে */
-        .bottom-signal { 
-            width: 1080px; 
-            height: 720px; 
-            background: #161b22; 
-            border: 1px solid #30363d; 
-            padding: 20px; 
-            display: flex;
-            flex-direction: column;
+        .logo-mid {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 2px solid #58a6ff;
+            margin: 15px 0;
         }
 
         iframe { width: 100%; height: 100%; border: none; }
-        h3 { text-align: center; margin: 15px 0; color: #58a6ff; font-weight: normal; }
+        h4 { text-align: center; margin-bottom: 8px; color: #58a6ff; font-size: 13px; text-transform: uppercase; }
 
-        @media (max-width: 1100px) {
-            body { align-items: flex-start; padding-left: 10px; }
+        /* ডেস্কটপ মোড একটিভ হলে জোরপূর্বক ১১০০ পিক্সেল করা */
+        .desktop-on {
+            width: 1100px !important;
+            max-width: none !important;
         }
     </style>
 </head>
-<body>
+<body id="page-body">
 
-    <h3>স্পন্সর অ্যাড (780x780)</h3>
-    <div class="top-sponsor">
+    <div class="nav">
+        <button class="btn d-btn" onclick="toggleDesktop()">Desktop Mode</button>
+        <button class="btn r-btn" onclick="location.reload()">Reload</button>
+    </div>
+
+    <h4>Sponsor (780x780)</h4>
+    <div class="box-sponsor">
         <iframe src="https://omg10.com/4/10451492"></iframe>
     </div>
 
-    <h3>লাইভ ক্যান্ডেল চার্ট (1080x720)</h3>
-    <div class="middle-chart">
-        <div id="tradingview_main" style="height: 100%; width: 100%;"></div>
-    </div>
+    <img src="https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/cyber-hacker-anonymous-logo-vector-50369664.jpg" class="logo-mid" alt="Logo">
 
-    <h3>মার্কেট সিগন্যাল (1080x720)</h3>
-    <div class="bottom-signal">
-        <div class="tradingview-widget-container" style="height: 100%; width: 100%;">
-            <div class="tradingview-widget-container__widget"></div>
+    <h4>Live Chart (1080x720)</h4>
+    <div class="box-chart-signal" id="chart_div"></div>
+
+    <h4>Signals (1080x720)</h4>
+    <div class="box-chart-signal">
+        <div class="tradingview-widget-container" style="height: 100%;">
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
             {
                 "interval": "1m",
                 "width": "100%",
-                "isTransparent": true,
                 "height": "100%",
                 "symbol": "BINANCE:BTCUSDT",
                 "showIntervalTabs": true,
                 "displayMode": "multiple",
                 "locale": "en",
                 "colorTheme": "dark",
-                "intervals": [
-                    "1m",
-                    "5m",
-                    "15m",
-                    "30m"
-                ]
+                "intervals": ["1m","5m","15m","30m"]
             }
             </script>
         </div>
     </div>
 
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script type="text/javascript">
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        // চার্ট উইজেট
         new TradingView.widget({
-            "width": 1080,
-            "height": 720,
+            "autosize": true, /* এটি মোবাইল ও ডেস্কটপ উভয় জায়গায় ফিট করবে */
             "symbol": "BINANCE:BTCUSDT",
             "interval": "1",
-            "timezone": "Asia/Dhaka",
             "theme": "dark",
             "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#131722",
-            "enable_publishing": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_main"
+            "container_id": "chart_div"
         });
-    </script>
 
+        function toggleDesktop() {
+            const body = document.getElementById('page-body');
+            const meta = document.getElementById('v-meta');
+
+            if (!body.classList.contains('desktop-on')) {
+                body.classList.add('desktop-on');
+                meta.setAttribute('content', 'width=1100, initial-scale=0.35');
+                alert("Desktop Mode: Enabled");
+            } else {
+                body.classList.remove('desktop-on');
+                meta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+                alert("Mobile Mode: Enabled");
+            }
+        }
+    </script>
 </body>
 </html>
